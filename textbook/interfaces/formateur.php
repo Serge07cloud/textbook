@@ -6,7 +6,7 @@ if ($_SESSION['id_type_utilisateur'] == 4){
     $query = $bdd->query("SELECT id_enseignant FROM  enseignant WHERE id_utilisateur = " . $_SESSION["connecte"]);
     $_SESSION["teacher"] = $query->fetchColumn();
 }
-var_dump($_SESSION);
+
 /* Sélection de tous les UE auquels appartient l'utilisateur connecté */
 $listUe = array();
 $query = $bdd->query("SELECT DISTINCT ue.id_ue, ue.intitule_ue FROM ue 
@@ -17,16 +17,17 @@ $query = $bdd->query("SELECT DISTINCT ue.id_ue, ue.intitule_ue FROM ue
 while ($data = $query->fetch(PDO::FETCH_ASSOC)){
     $listUe[] = $data;
 };
+//var_dump($_SESSION);
 ?>
+
 <!-- UE and ECUE -->
 <form action="./textbook/process.php" method="POST" onsubmit="onFormSubmit(this)">
     <div class="row form-group">
         <div class="col-sm">
             <label for="ue">UE</label>
             <select name="ue" id="ue" class="form-control" onchange="afficherEcue(this.value)">
-                <option value=""></option>
                 <?php foreach ($listUe as $ue): ?>
-                    <option value="<?= $ue["id_ue"] ?>"> <?= $ue["intitule_ue"],$ue["id_ue"] ?></option>
+                    <option value="<?= $ue["id_ue"] ?>"> <?= $ue["intitule_ue"] ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
@@ -54,23 +55,39 @@ while ($data = $query->fetch(PDO::FETCH_ASSOC)){
     </div>
     <!-- GROUPE -->
     <div class="form-group">
-            <p class="card-header">GROUPES</p>
-            <div class="card-body">
-                <div class="form-check" id="cm">
-                    <input type="checkbox" class="form-check-input" id="cm_value" name="cm_value">
-                    <label for="cm_value" class="form-check-label">CM  (<span>00</span>)</label>
-                </div>
-                <div class="form-check" id="td">
-                    <input type="checkbox" class="form-check-input" id="td_value" name="td_value">
-                    <label for="td_value" class="form-check-label">TD (<span>00</span>)</label>
-                </div>
-                <div class="form-check" id="tp">
-                    <input type="checkbox" class="form-check-input" id="tp_value" name="tp_value">
-                    <label for="tp_value" class="form-check-label">TP (<span>00</span>)</label>
-                </div>
+            <div class="row">
+                <p class="col-4"></p>
+                <p class="col-4"></p>
+            </div>
+            <table class="table">
+                <tr>
+                    <td>TYPE ENSEIGNEMENT</td>
+                    <td>NOMBRE DE GROUPE(S) ATTRIBUE(S)</td>
+                </tr>
+                <tr id="cm">
+                    <td><input type="checkbox" class="form-check-input" id="cm_value" name="cm_value">Cours Magistral (CM)</td>
+                    <td><label for="cm_value" class="form-check-label"><span>0</span></label></td>
+                </tr>
+                <tr id="td">
+                    <td><input type="checkbox" class="form-check-input" id="td_value" name="td_value">Travaux Dirigés (TD)</td>
+                    <td><label for="td_value" class="form-check-label"><span>0</span></label></td>
+                </tr>
+                <tr id="tp">
+                    <td><input type="checkbox" class="form-check-input" id="tp_value" name="tp_value">Travaux Dirigés (TD)</td>
+                    <td><label for="tp_value" class="form-check-label"><span>0</span></label></td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" class="form-check-input" id="all">SELECTIONNER TOUT</td>
+                    <td><label for="tp_value" class="form-check-label"></label></td>
+                </tr>
+            </table>
+            <div>
+
+
+
                 <div class="form-check">
-                    <input type="checkbox" class="form-check-input" id="all">
-                    <label for="tp_value" class="form-check-label">SELECTIONNER TOUT</label>
+
+
                 </div>
 
                 <div class="container text-right">
@@ -90,9 +107,13 @@ while ($data = $query->fetch(PDO::FETCH_ASSOC)){
         $('input[type=checkbox]').prop('checked', $(this).prop('checked'));
     });
 
-    // $("form").on('DOMSubtreeModified', "#cm label span", function() {
-    //     alert("changed");
+    // $(function (){
+    //     if ($("#cm label span").text() === "0")
+    //         $("#cm input").attr("disabled", true);
+    //     else
+    //         $("#cm input").removeAttr("disabled");
     // });
+
 
     function onFormSubmit(form){
         // Créer un tableau d'objet avec toutes les valeurs
@@ -121,11 +142,24 @@ while ($data = $query->fetch(PDO::FETCH_ASSOC)){
         // Eviter de soumettre les données
         return false;
     }
+
+    // function empty(){
+        //     $("#ecue, #niveau, #parcours")
+        //         .empty()
+        //         .append('<option value=""></option>');
+    // }
+
     function afficherEcue(ue){
+        $("#ecue, #niveau, #specialite")
+            .empty()
+            .append('<option value=""></option>');
         $('#ecue').load('textbook/fetchData/get_ecue.php', { value : ue });
     }
 
     function afficherNiveau(value){
+        $("#niveau, #specialite")
+            .empty()
+            .append('<option value=""></option>');
         $('#niveau').load('textbook/fetchData/get_niveau.php', { value : value });
     }
 
@@ -154,6 +188,7 @@ while ($data = $query->fetch(PDO::FETCH_ASSOC)){
     }
 
     function afficherSpecialites(value){
+
         $('#specialite').load('textbook/fetchData/get_parcours.php',
             {
                 value: value,

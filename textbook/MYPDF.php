@@ -5,7 +5,7 @@ require ('../tcpdf/tcpdf.php');
 class MYPDF extends TCPDF {
 
     private $ufrImage;
-    private $departmentImage;
+    private $institutionImage;
     private $ufr;
     private $department;
     private $teacher;
@@ -23,13 +23,13 @@ class MYPDF extends TCPDF {
 
 
     public function Header() {
-        $image_file_left = $this->getUfrImage();
-        $image_file_right = $this->getDepartmentImage(); //Departement
-        $this->Image($image_file_left, 15, 8, 18, 18, 'JPG', '', 'M', false, 300, '', false, false, 1, false, false, false);
-        $this->SetFont('helvetica', 'B', 20);
-        $this->writeHTMLCell(210, 10, 45, 12, 'RÉCAPITULATIF DES COURS DISPENSÉS PAR ENSEIGNANT', 1, 1, 0, true, 'C', true);
+        $image_file_left = "../img/logos/ufhb.jpg";
+        $image_file_right = $this->getInstitutionImage(); //Departement
+        $this->Image($image_file_left, 15, 8, 22, 18, 'JPG', '', 'M', true, 300, '', false, false, 0, false, false, false);
+        $this->SetFont('helvetica', 'B', 15);
+        $this->writeHTMLCell(200, 8, 50, 14, 'RÉCAPITULATIF DES COURS DISPENSÉS PAR ENSEIGNANT', 1, 1, 0, true, 'C', true);
         $x = $this->GetPageWidth() - 36 ;
-        $this->Image($image_file_right, $x, 8, 18, 18, 'JPG', '', 'N', false, 300, '', false, false, 1, false, false, false);
+        $this->Image($image_file_right, $x, 8, 18, 18, 'JPG', '', 'N', false, 300, '', false, false, 0, false, false, false);
 
         $ufr = $this->getUfr();
         $department = $this->getDepartment();
@@ -56,7 +56,7 @@ class MYPDF extends TCPDF {
 </table>
 EOD;
         $this->SetFont('helvetica', '', 10);
-        $this->writeHTMLCell(0, 0, 16, 26, $html, 0, 1, 0, true, '', true);
+        $this->writeHTMLCell(0, 0, 16, 28, $html, 0, 1, 0, true, '', true);
 
         $ue = $this->getUe();
         $ecue = $this->getEcue();
@@ -74,7 +74,7 @@ EOD;
         </table>
 EOD;
 
-        $this->writeHTMLCell(0, 0, 16, 43, $html, 0, 1, 0, true, '', true);
+        $this->writeHTMLCell(0, 0, 16, 48, $html, 0, 1, 0, true, '', true);
 
         $timeCM = $this->getTimeCM();
         $timeTD = $this->getTimeTD();
@@ -90,7 +90,7 @@ EOD;
             </tr>
         </table>
 EOD;
-        $this->writeHTMLCell(0, 0,16 , 53, $html, 0, 1, 0, true, '', true);
+        $this->writeHTMLCell(0, 0,16 , 60, $html, 0, 1, 0, true, '', true);
 
     }
 
@@ -300,21 +300,9 @@ EOD;
         $this->ufrImage = $ufrImage;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getDepartmentImage()
-    {
-        return $this->departmentImage;
-    }
 
-    /**
-     * @param mixed $departmentImage
-     */
-    public function setDepartmentImage($departmentImage)
-    {
-        $this->departmentImage = $departmentImage;
-    }
+
+
 
     /**
      * @return mixed
@@ -364,6 +352,21 @@ EOD;
         $this->timeTP = $timeTP;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getInstitutionImage()
+    {
+        return $this->institutionImage;
+    }
+
+    /**
+     * @param mixed $institutionImage
+     */
+    public function setInstitutionImage($institutionImage)
+    {
+        $this->institutionImage = $institutionImage;
+    }
 
 
 }

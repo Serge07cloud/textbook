@@ -20,5 +20,5 @@ while ($data = $query->fetch(PDO::FETCH_ASSOC)){
 <option value=""></option>
 <?php
 foreach ($niveaux as $niveau) { ?>
-    <option value="<?= $niveau["id_niveau"] ?>"><?= $niveau["libelle_niveau"],$niveau["id_niveau"] ?></option>
+    <option value="<?= $niveau["id_niveau"] ?>"><?= $niveau["libelle_niveau"] ?></option>
 <?php } ?>

@@ -16,5 +16,5 @@ while ($data = $query->fetch(PDO::FETCH_ASSOC)){
 <option value=""></option>
 <?php
 foreach ($ecues as $ecue) { ?>
-    <option value="<?= $ecue["id_ecue"] ?>"><?= $ecue["intitule_ecue"],$ecue["id_ecue"] ?></option>
+    <option value="<?= $ecue["id_ecue"] ?>"><?= $ecue["intitule_ecue"] ?></option>
 <?php } ?>

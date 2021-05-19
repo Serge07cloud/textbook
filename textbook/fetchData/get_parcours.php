@@ -19,8 +19,8 @@ while ($data = $query->fetch(PDO::FETCH_ASSOC)){
 }
 
 ?>
-<option value=""><?= (int)$_POST["value"]."->". (int)$_POST["ecue"]?></option>
+<option value=""></option>
 <?php
 foreach ($specialites as $specialite) { ?>
-    <option value="<?= $specialite["id_specialite"] ?>"><?= $specialite["libelle_specialite"],$specialite["id_specialite"] ?></option>
+    <option value="<?= $specialite["id_specialite"] ?>"><?= $specialite["libelle_specialite"] ?></option>
 <?php } ?>
