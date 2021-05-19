@@ -1,0 +1,14 @@
+{
+  "name": "vendor_name/syge-sco_etudiant",
+  "description": "description",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "Tooparkzer",
+      "email": "christianaka65@gmail.com"
+    }
+  ],
+  "require": {
+  }
+}
