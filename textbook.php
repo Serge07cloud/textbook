@@ -1,7 +1,9 @@
-<?php session_start(); ?>
 <?php
 
+session_start();
 $typeUtilisateur = (int)$_SESSION["id_type_utilisateur"];
+
+
 ?>
 <div class="card shadow mb-4">
     <div class="card-header py-3">
@@ -31,7 +33,7 @@ $typeUtilisateur = (int)$_SESSION["id_type_utilisateur"];
                             break;
                         case 5:
                             # Directeur d'Unité de formation
-                            include ("textbook/interfaces/directeurUniteFormation.php");
+                            include ("./textbook/interfaces/directeurUniteFormation.php");
                             break;
                         default:
                             break;

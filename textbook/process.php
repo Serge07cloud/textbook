@@ -19,7 +19,7 @@ $tp_state = $data->tp_checked;
 $cm_group = $data->cm_group;
 $td_group = $data->td_group;
 $tp_group = $data->tp_group;
-$volume = getTempsAttribue((int)$ecue,(int)$parcours,(int)$_SESSION["id_annee_academique"], (int)$_SESSION["teacher"]);
+$volume = getTempsAttribue((int)$ecue,(int)$parcours,(int)$_SESSION["id_annee_academique"], intval($data->teacher));
 
 
 $pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
@@ -31,7 +31,7 @@ $pdf->SetMargins(PDF_MARGIN_LEFT, 60, PDF_MARGIN_RIGHT,true);
 $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
 
 /* Personnal configurations */
-$teacher = getUserConnected((int)$_SESSION["teacher"]);
+$teacher = getUserConnected(intval($data->teacher));
 $ue = getUe((int)$ue)[0]["intitule_ue"];
 $ecue = getEcue((int)$ecue)[0]["intitule_ecue"];
 $niveau = getNiveau((int)$niveau)[0]["libelle_niveau"];
@@ -76,10 +76,10 @@ $pdf->AddPage('L', 'A4');
 
 if ($cm_state == true){
     # Selection of all CM groups
-    $cmGroups = getGroups(1,$_SESSION["teacher"],(int)$_SESSION["id_annee_academique"],(int)$_SESSION["id_departement"],(int)$_SESSION["id_etablissement"],(int)$data->niveau);
+    $cmGroups = getGroups(1,intval($data->teacher),(int)$_SESSION["id_annee_academique"],(int)$_SESSION["id_departement"],(int)$_SESSION["id_etablissement"],(int)$data->niveau);
     foreach ($cmGroups as $cmGroup)
     {
-        $cms = getCourses(1,$cmGroup["id_groupe"],$_SESSION["teacher"],(int)$_SESSION["id_annee_academique"],(int)$_SESSION["id_departement"],(int)$_SESSION["id_etablissement"],(int)$data->niveau);
+        $cms = getCourses(1,$cmGroup["id_groupe"],intval($data->teacher),(int)$_SESSION["id_annee_academique"],(int)$_SESSION["id_departement"],(int)$_SESSION["id_etablissement"],(int)$data->niveau);
         $groupLabel = getGroupLabel($cmGroup["id_groupe"]);
         if (count($cms) > 0)
         {
@@ -184,11 +184,11 @@ EOD;
 
 if ($td_state == true){
     # Selection of all CM groups
-    $tdGroups = getGroups(2,$_SESSION["teacher"],(int)$_SESSION["id_annee_academique"],(int)$_SESSION["id_departement"],(int)$_SESSION["id_etablissement"],(int)$data->niveau);
+    $tdGroups = getGroups(2,intval($data->teacher),(int)$_SESSION["id_annee_academique"],(int)$_SESSION["id_departement"],(int)$_SESSION["id_etablissement"],(int)$data->niveau);
     foreach ($tdGroups as $tdGroup)
     {
 
-        $tds = getCourses(2,$tdGroup["id_groupe"],$_SESSION["teacher"],(int)$_SESSION["id_annee_academique"],(int)$_SESSION["id_departement"],(int)$_SESSION["id_etablissement"],(int)$data->niveau);
+        $tds = getCourses(2,$tdGroup["id_groupe"],intval($data->teacher),(int)$_SESSION["id_annee_academique"],(int)$_SESSION["id_departement"],(int)$_SESSION["id_etablissement"],(int)$data->niveau);
         $groupLabel = getGroupLabel($tdGroup["id_groupe"]);
         if (count($tds) > 0)
         {
@@ -198,6 +198,7 @@ if ($td_state == true){
 EOD;
             $y = $pdf->GetY();
             $pdf->writeHTMLCell(0, 0, '', $y, $html, 0, 1, 0, true, '', true);
+
 
 
             $html = <<<EOD
@@ -300,10 +301,10 @@ EOD;
 
 if ($tp_state == true){
     # Selection of all CM groups
-    $tpGroups = getGroups(3,$_SESSION["teacher"],(int)$_SESSION["id_annee_academique"],(int)$_SESSION["id_departement"],(int)$_SESSION["id_etablissement"],(int)$data->niveau);
+    $tpGroups = getGroups(3,intval($data->teacher),(int)$_SESSION["id_annee_academique"],(int)$_SESSION["id_departement"],(int)$_SESSION["id_etablissement"],(int)$data->niveau);
     foreach ($tpGroups as $tpGroup)
     {
-        $tps = getCourses(3,$tpGroup["id_groupe"],$_SESSION["teacher"],(int)$_SESSION["id_annee_academique"],(int)$_SESSION["id_departement"],(int)$_SESSION["id_etablissement"],(int)$data->niveau);
+        $tps = getCourses(3,$tpGroup["id_groupe"],intval($data->teacher),(int)$_SESSION["id_annee_academique"],(int)$_SESSION["id_departement"],(int)$_SESSION["id_etablissement"],(int)$data->niveau);
         $groupLabel = getGroupLabel($tpGroup["id_groupe"]);
         if (count($tps) > 0)
         {
@@ -413,8 +414,8 @@ EOD;
     }
 
 }
-//var_dump($data);
-$pdf->Output('example_003.pdf', 'D');
+$filename = "Cahier_de_Texte_". $teacher[0]["prenom_enseignant"] ."_".time();
+$pdf->Output($filename, 'D');
 
 ?>
 

@@ -117,121 +117,12 @@ function getInstitutionImage($institutionId){
     return $query->fetchColumn();
 }
 
-function breakPage($pdf){
-    $html = <<<EOD
-            <br pagebreak="true" />
-EOD;
-    $y = $pdf->GetY();
-    $pdf->writeHTMLCell(0, 0, '', $y, $html, 0, 1, 0, true, '', true);
+function getTeachers($departmentId){
+    $dbh = connexion();
+    $query = $dbh->query("SELECT id_enseignant, nom_enseignant, prenom_enseignant FROM enseignant WHERE id_departement = " . $departmentId);
+    return $query->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function display($pdf,$type){
+function getTeachersSwitchUE($teacherId){
 
-    # Selection of all CM groups
-
-    $groups = getGroups($type, $_SESSION["teacher"], (int)$_SESSION["id_annee_academique"], (int)$_SESSION["id_departement"], (int)$_SESSION["id_etablissement"], (int)$data->niveau);
-    foreach ($groups as $couse) {
-
-        $courses = getCourses($type, $couse["id_groupe"], $_SESSION["teacher"], (int)$_SESSION["id_annee_academique"], (int)$_SESSION["id_departement"], (int)$_SESSION["id_etablissement"], (int)$data->niveau);
-        $groupLabel = getGroupLabel($couse["id_groupe"]);
-        if (count($courses) > 0)
-        {
-            $totalHour = 0;
-            $html = <<<EOD
-        <table>
-            <tr>
-                <td style="border-bottom-style: solid"><b>GROUPE : $groupLabel</b></td>
-            </tr>
-        </table>
-EOD;
-            $y = $pdf->GetY() + 1;
-            $pdf->writeHTMLCell(0, 0, '', 70, $html, 0, 1, 0, true, '', true);
-
-            # Affichage du type d'enseignement
-            $html = <<<EOD
-        <table style="border-collapse: separate; border-spacing: 5px;">
-            <tr>
-                <td width="15%">Type d'enseignement</td>
-                <td width="20%">: <b>COURS MAGISTRAL</b></td>
-            </tr>
-        </table>
-        <table border="1" cellpadding="3">
-            <tr>
-                <th scope="col" align="center" style="font-size: 0.9em; font-weight: bold" width="9%">DATE</th>
-                <th scope="col" align="center" style="font-size: 0.9em; font-weight: bold" width="6%">DEBUT</th>
-                <th scope="col" align="center" style="font-size: 0.9em; font-weight: bold" width="6%">FIN</th>
-                <th scope="col" align="center" style="font-size: 0.9em; font-weight: bold" width="9%">DUREE (MIN)</th>
-                <th scope="col" align="center" style="font-size: 0.9em; font-weight: bold" width="40%">CONTENU ENSEIGNEMENT</th>
-                <th scope="col" align="center" style="font-size: 0.9em; font-weight: bold" width="20%">COMMENTAIRES</th>
-                <th scope="col" align="center" style="font-size: 0.9em; font-weight: bold" width="10%">SALLE</th>
-            </tr>
-EOD;
-            $breakPage = 0;
-            # On affiche tous les CM pour ce groupe
-            foreach ($courses as $cm) {
-                /*
-                 * Liste des vairables du tableau */
-                $totalHour += (int)$cm["duree_enseignement_minutes"] / 60;
-                $date = $cm["date_enseignement"];
-                $startTime = $cm["heure_debut"];
-                $endTime = $cm["heure_fin"];
-                $duration = $cm["duree_enseignement_minutes"];
-                $comment = $cm["commentaire"] != "" ? $cm["commentaire"] : "Aucun commentaire";
-                $content = $cm["contenu_enseignement"];
-                $room = getRoomLabel((int)$cm["id_salle"]);
-
-                $html .= <<<EOD
-            <tr>
-                <td align="center" style="height: 10px; line-height: 30px" width="9%">$date</td>
-                <td align="center" style="height: 10px; line-height: 30px" width="6%">$startTime</td>
-                <td align="center" style="height: 10px; line-height: 30px" width="6%">$endTime</td>
-                <td align="center" style="height: 10px; line-height: 30px" width="9%">$duration</td>
-                <td align="" style="height: 30px; line-height: 15px" width="40%">$content</td>
-                <td align="center" style="height: 30px; line-height: 15px" width="20%">$comment</td>
-                <td align="center" style="height: 10px; line-height: 30px" width="10%">$room</td>
-            </tr>
-EOD;
-                $breakPage++;
-                if ($breakPage % 9 == 0) {
-                    $html .= <<<EOD
-        </table>
-                <br pagebreak="true"/>
-EOD;
-                    $y = $pdf->GetY();
-                    $pdf->writeHTMLCell(0, 0, '', $y, $html, 0, 1, 0, true, '', true);
-
-                    $html = <<<EOD
-        <table cellpadding="2">
-            <tr>
-                <td style="border-bottom-style: solid"><b>GROUPE : </b></td>
-            </tr>
-        </table>
-EOD;
-                    $y = $pdf->GetY() - 8;
-                    $pdf->writeHTMLCell(0, 0, '', $y, $html, 0, 1, 0, true, '', true);
-                    $html = <<<EOD
-        <table style="border-collapse: separate; border-spacing: 5px;">
-            <tr>
-                <td width="15%">Type d'enseignement</td>
-                <td width="20%">: <b>COURS MAGISTRAL</b></td>
-            </tr>
-        </table>
-        <table border="1" cellpadding="3">
-EOD;
-                }
-
-            } # EndForeach
-
-            $html .= <<<EOD
-        <tr>
-        <td colspan="7" align="center">Total volume Horaire : <b> $totalHour </b>H</td>
-
-</tr>
-        </table>
-EOD;
-            $y = $pdf->GetY();
-            $pdf->writeHTMLCell(0, 0, '', $y, $html, 0, 1, 0, true, '', true);
-            $courses = null;
-        }
-    }
 }
