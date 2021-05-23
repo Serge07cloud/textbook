@@ -1,6 +1,5 @@
 <?php
 session_start();
-include "../../config/connexion.php";
 
 /*
  * Selection de tous les CM */
