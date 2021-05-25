@@ -17,7 +17,7 @@ $typeUtilisateur = (int)$_SESSION["id_type_utilisateur"];
                     switch ($typeUtilisateur){
                         case 1:
                             # Super Administrateur
-                            include ("textbook/interfaces/superUtilisateur.php");
+                            include ("textbook/interfaces/presidence.php");
                             break;
                         case 2:
                             # Présidence de l'université

@@ -14,11 +14,7 @@
     </div>
 </div>
 
-<div class="form-group">
-    <div class="row">
-        <p class="col-4"></p>
-        <p class="col-4"></p>
-    </div>
+<div class="">
     <table class="table">
         <tr>
             <td>TYPE ENSEIGNEMENT</td>
@@ -45,6 +41,4 @@
     <div class="container text-right">
         <input type="submit" class="btn btn-primary" value="Resume" name="resume">
     </div>
-
-
 </div>

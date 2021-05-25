@@ -1,0 +1,1 @@
+<input type="submit" class="btn btn-primary" value="Resume" name="resume" id="summary" disabled>
