@@ -11,7 +11,6 @@ $typeUtilisateur = (int)$_SESSION["id_type_utilisateur"];
     </div>
     <div class="card-body">
 
-<!--        <form action="" method="POST">-->
             <div class="container">
                 <?php
                     switch ($typeUtilisateur){
@@ -40,7 +39,6 @@ $typeUtilisateur = (int)$_SESSION["id_type_utilisateur"];
                     }
                 ?>
             </div>
-<!--        </form>-->
     </div>
 </div>
 

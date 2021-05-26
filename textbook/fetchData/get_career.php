@@ -34,6 +34,7 @@ while ($data = $query->fetch(PDO::FETCH_ASSOC)){
         echo "Choisir...";
     else echo "Aucun"?>
 </option>
+
 <?php
 foreach ($careers as $career) { ?>
     <option value="<?= $career["id_specialite"] ?>">
