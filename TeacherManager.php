@@ -132,10 +132,10 @@ class TeacherManager
     }
 
     /* Obtenir une liste d'enseignant */
-    public function getList(){
+    public function getList($id){
         $teachers = array();
 
-        $query = $this->_db->query("SELECT * FROM enseignant WHERE 1");
+        $query = $this->_db->query("SELECT * FROM enseignant WHERE id_type_personnel = " . $id);
         while ($data = $query->fetch(PDO::FETCH_ASSOC)){
             $teachers[] = new Teacher($data);
         }

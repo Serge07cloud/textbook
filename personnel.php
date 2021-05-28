@@ -3,11 +3,11 @@ require "./Teacher.php";
 require "./TeacherManager.php";
 require "./User.php";
 require "./UserManager.php";
-require "./fonction.php";
+require "./config/connexion.php";
 
+// Identifiant de l'etablissement
+$idEtablissement = $_GET["idEtablissement"];
 
-$bdd = new PDO('mysql:host=localhost; dbname=ufhbedupxhonline','root', '');
-$bdd->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $teacherManager = new TeacherManager($bdd);
 $userManager = new UserManager($bdd);
 
@@ -16,106 +16,23 @@ date_default_timezone_set('UTC');
 // Identifiant de la nouvelle entrée
 $identifiant = $teacherManager->getLastInsertedOne() + 1;
 
+$idUserType = 7;
+$idStaffType= 2;
+
 // Enregistrement
-if (isset($_POST['enregistrer']))
-{
-
-        // Dernier identifiant utilisateur de la base de données
-        $lastID = (int)$userManager->getLastInsertedUser();
-
-        // Nouvel utilisateur
-        $user = new User(array(
-        'id_utilisateur'              =>       $lastID + 1,
-        'matricule_utilisateur'       =>       $_POST['matricule'],
-        'nom_utilisateur'             =>       $_POST['nom'],
-        'prenom_utilisateur'          =>       $_POST['prenoms'],
-        'tel_utilisateur'             =>       $_POST['telephone1'],
-        'adresse_utilisateur'         =>       $_POST['adresse'],
-        'email_utilisateur'           =>       $_POST['email1'],
-        'login_utilisateur'           =>       $_POST['login'],
-        'mot_passe_utilisateur'       =>       $_POST['password'],
-        'id_type_utilisateur'         =>       7, // Scolarite
-        'id_etablissement'            =>       (int)$_POST['etablissement'],
-        'id_departement'              =>       (int)$_POST['departement'],
-        'id_groupe_utilisateur'       =>       (int)$_POST['userGroup'],
-        'id_qualite_utilisateur'      =>       (int)$_POST['userQuality'],
-        'parametres_envoye'           =>       "OUI",
-        'date_envoie'                 =>       date("Y-m-d"),
-        'heure_envoie'                =>       date("H:i:s"),
-        'connexion_reussie'           =>       "OUI",
-        'date_derniere_connexion'     =>       date("Y-m-d"),
-        'heure_derniere_connexion'    =>       date("H:i:s")
-    ));
-
-        // Nouvel enseignant
-        $teacher = new Teacher(array(
-            'id_enseignant'                     => $identifiant,
-            'matricule_enseignant'              => $_POST['matricule'],
-            'nom_enseignant'                    => $_POST['nom'],
-            'prenom_enseignant'                 => $_POST['prenoms'],
-            'date_nais_enseignant'              => $_POST['dateDeNaissance'],
-            'sexe_enseignant'                   => (int)$_POST['sexe'],
-            'tel_enseignant'                    => $_POST['telephone1'],
-            'tel2_enseignant'                   => $_POST['telephone2'],
-            'email_enseignant'                  => $_POST['email1'],
-            'email2_enseignant'                 => $_POST['email2'],
-            'adresse_enseignant'                => $_POST['adresse'],
-            'num_compte_bancaire'               => $_POST['numeroBancaire'],
-            'etablissement_bancaire'            => $_POST['etablissementBancaire'],
-            'permanent'                         => "",
-            'date_recrutement_enseignant'       => $_POST['dateRecrutement'],
-            'id_etablissement'                  => null,
-            'id_departement'                    => (int)$_POST['departement'],
-            'etablissement_origine'             => null,
-            'id_laboratoire'                    => (int)$_POST['laboratoire'],
-            'id_specialite_labo'                => (int)$_POST['specialiteLaboratoire'],
-            'id_pays'                           => (int)$_POST['pays'],
-            'id_utilisateur'                    => $lastID + 1,
-            'id_type_personnel'                 => 2,
-            'id_groupe_sco'                     => (int)$_POST['groupeSco']
-        ));
-
-
-        // Enregistrement de l'enseignant
-        $teacherManager->add($teacher);
-
-        // Enregistrement de l'utilisateur
-        $userManager->add($user);
-        ?>
-        <div>
-            <span id="" class="form-text text-success font-weight-bold">
-                <i class="fas fa-check-square fa-md fa-fw mr-2"></i>Informations enrégistrées avec succès.
-            </span>
-        </div>
-        <?php
-    // Identifiant de la nouvelle entrée
-    $identifiant = $teacherManager->getLastInsertedOne() + 1;
-}
+if (isset($_POST['enregistrer'])) include "teacher/process/saveCode.php";
 
 // Suppression
-if (isset($_POST['supprimer'])){
-    if (!empty($_POST["cocher"])) {
-        foreach ($_POST["cocher"] as $id) {
+if (isset($_POST['supprimer']))   include "teacher/process/deleteCode.php";
 
-            $id = (int) $id;
+// Edit
+if (isset($_POST['edit'])) include "teacher/process/editCode.php";
 
-            // Enseignant sélectionné
-            $selectedTeacher = $teacherManager->get($id);
+// Update
+if (isset($_POST['update'])) include "teacher/process/updateCode.php";
 
-            // Suppression de l'utilisateur
-            $userManager->delete($selectedTeacher->id_utilisateur());
-
-            // Suppression de l'enseignant de la table des enseignant
-            $teacherManager->delete($id);
-
-        }
-        ?>
-        <div><span id="" class="form-text text-success font-weight-bold"><i class="fas fa-fa-check-square fa-md fa-fw mr-2"></i>Informations supprimées avec succès .</span></div>
-        <?php
-    }
-}
-
-// Mise à jour
+// Undo
+if (isset($_POST['undo'])) include "teacher/process/undoCode.php";
 
 ?>
 <div class="card shadow mb-4">
@@ -131,37 +48,38 @@ if (isset($_POST['supprimer'])){
             <div class="form-row">
                 <div class="form-group col-md-4">
                     <label for="identifiant">Identifiant</label>
-                    <input type="text" class="form-control " id="identifiant" readonly name="identifiant" required="" autofocus="" value="<?= $identifiant ?>">
+                    <input type="text" class="form-control " id="identifiant"  name="identifiant" readonly required="" autofocus="" value="<?php if (isset($editResult)) echo $editResult["id_enseignant"]; else echo $identifiant ?>">
                 </div>
 
                 <div class="form-group col-md-4">
                     <label for="matricule">Matricule</label>
-                    <input type="text" class="form-control " id="matricule"   name="matricule" required="" value="">
+                    <input type="text" class="form-control " id="matricule"   name="matricule" required="" value="<?php if (isset($editResult)) echo $editResult['matricule_enseignant']?>">
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group col-md-4">
                     <label for="nom">Nom</label>
-                    <input type="text" class="form-control " id="nom"  name="nom" required="" autofocus="">
+                    <input type="text" value="<?php if (isset($editResult)) echo $editResult['nom_enseignant']?>" class="form-control" id="nom"  name="nom" required="" autofocus="">
                 </div>
 
                 <div class="form-group col-md-4">
                     <label for="prenoms">Prénoms</label>
-                    <input type="text" class="form-control " id="prenoms"  name="prenoms" required="" autofocus="">
+                    <input type="text" value="<?php if (isset($editResult)) echo $editResult['prenom_enseignant']?>" class="form-control " id="prenoms"  name="prenoms" required="" autofocus="">
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group col-md-4">
                     <label for="dateDeNaissance">Date de naissance</label>
-                    <input type="date" class="form-control " id="dateDeNaissance"   name="dateDeNaissance" value="">
+                    <input type="date" value="<?php if (isset($editResult)) echo $editResult['date_nais_enseignant']?>" class="form-control " id="dateDeNaissance"   name="dateDeNaissance">
                 </div>
+
                 <div class="form-group col-md-4">
                     <label for="sexe">Sexe</label>
                     <select name="sexe" id="sexe" class="form-control">
-                        <option value="1">MASCULIN</option>
-                        <option value="2">FEMININ</option>
+                        <option value="1" <?php if (isset($editResult) && $editResult['sexe_enseignant'] == 1) echo "selected"?>>MASCULIN</option>
+                        <option value="2" <?php if (isset($editResult) && $editResult['sexe_enseignant'] == 2) echo "selected"?> >FEMININ</option>
                     </select>
                 </div>
 
@@ -170,104 +88,119 @@ if (isset($_POST['supprimer'])){
             <div class="form-row">
                 <div class="form-group col-md-4">
                     <label for="telephone1">Telephone 1</label>
-                    <input type="text" class="form-control " id="telephone1"  name="telephone1" required="" autofocus="">
+                    <input type="text" value="<?php if (isset($editResult)) echo $editResult['tel_enseignant']?>" class="form-control " id="telephone1"  name="telephone1" required="" autofocus="">
                 </div>
 
                 <div class="form-group col-md-4">
                     <label for="telephone2">Telephone 2</label>
-                    <input type="text" class="form-control " id="telephone2"   name="telephone2" value="">
+                    <input type="text" value="<?php if (isset($editResult)) echo $editResult['tel2_enseignant']?>" class="form-control " id="telephone2"   name="telephone2" value="">
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group col-md-4">
                     <label for="email1">Email 1</label>
-                    <input type="text" class="form-control " id="email1"  name="email1" required="" autofocus="">
+                    <input type="text" value="<?php if (isset($editResult)) echo $editResult['email_enseignant']?>" class="form-control " id="email1"  name="email1" required="" autofocus="">
                 </div>
 
                 <div class="form-group col-md-4">
                     <label for="email2">Email 2</label>
-                    <input type="text" class="form-control " id="email2"   name="email2" value="">
+                    <input type="text" value="<?php if (isset($editResult)) echo $editResult['email2_enseignant']?>" class="form-control " id="email2"   name="email2" value="">
                 </div>
+
+            </div>
+            <div class="form-row">
                 <div class="form-group col-md-4">
                     <label for="adresse">Adresse</label>
-                    <input type="text" class="form-control " id="adresse"  name="adresse" required="" autofocus="">
+                    <input type="text" value="<?php if (isset($editResult)) echo $editResult['adresse_enseignant']?>" class="form-control " id="adresse"  name="adresse" required="" autofocus="">
                 </div>
             </div><hr>
 
             <div class="form-row">
                 <div class="form-group col-md-4">
                     <label for="etablissementBancaire">Etablissement bancaire</label>
-                    <input type="text" class="form-control " id="etablissementBancaire"  name="etablissementBancaire" required="" autofocus="">
+                    <input type="text" value="<?php if (isset($editResult)) echo $editResult['etablissement_bancaire']?>" class="form-control " id="etablissementBancaire"  name="etablissementBancaire" required="" autofocus="">
                 </div>
 
                 <div class="form-group col-md-4">
                     <label for="numeroBancaire">Numero de compte bancaire</label>
-                    <input type="text" class="form-control " id="numeroBancaire"  name="numeroBancaire" required="" autofocus="">
+                    <input type="text" value="<?php if (isset($editResult)) echo $editResult['num_compte_bancaire']?>" class="form-control " id="numeroBancaire"  name="numeroBancaire" required="" autofocus="">
                 </div>
             </div><hr>
 
             <div class="form-row">
-<!--                <div class="form-group col-md-8">-->
-<!--                    <label for="etablissement">Etablissement</label>-->
-<!--                    <select name="etablissement" id="etablissement" class="form-control">-->
-<!--                        --><?php
-//                        $query = $bdd->query("SELECT id_etablissement, nom_etablissement FROM etablissement WHERE 1");
-//                        while ($result = $query->fetch())
-//                        {
-//                            ?>
-<!--                            <option value="--><?//= $result['id_etablissement']?><!--"> --><?//= $result['nom_etablissement']?><!-- </option>-->
-<!--                            --><?php
-//                        }
-//                        ?>
-<!--                    </select>-->
-<!--                </div>-->
-<!--                <div class="form-group col-md-4">-->
-<!--                    <label for="departement">Departement</label>-->
-<!--                    <select name="departement" id="departement" class="form-control">-->
-<!--                        --><?php
-//                        $query = $bdd->query("SELECT id_departement, nom_departement FROM departement WHERE 1");
-//                        while ($result = $query->fetch())
-//                        {
-//                            ?>
-<!--                            <option value="--><?//= $result['id_departement']?><!--"> --><?//= $result['nom_departement']?><!-- </option>-->
-<!--                            --><?php
-//                        }
-//                        ?>
-<!--                    </select>-->
-<!--                </div>-->
+                <div class="form-group col-md-8">
+                    <label for="etablissement">Etablissement</label>
+                    <select name="etablissement" id="etablissement" class="form-control" onchange="showDepartment(this.value)">
+                        <option value="">Choisir...</option>
+                        <?php
+                        $query = $bdd->query("SELECT id_etablissement, nom_etablissement FROM etablissement WHERE 1");
+                        while ($result = $query->fetch())
+                        {
+                            ?>
+                            <option value="<?= $result['id_etablissement'] ?>" <?php if (isset($editResult) && $editResult['id_etablissement'] == $result['id_etablissement']) echo "selected" ?> > <?= $result['nom_etablissement']?> </option>
+                            <?php
+                        }
+                        ?>
+                    </select>
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="departement">Departement</label>
+                    <select name="department" id="department" class="form-control" onchange="showLaboratory(this.value)">
+                        <?php if (isset($editResult) && $editResult["id_departement"] != null): ?>
+                            <option value="<?= $editResult["id_departement"] ?>">
+                                <?php
+                                $query = $bdd->query("SELECT nom_departement FROM departement WHERE id_departement = " . intval($editResult["id_departement"]));
+                                echo $query->fetchColumn();
+                                ?>
+                            </option>
+                        <?php endif; ?>
+                    </select>
+                </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group col-md-8">
-                    <label for="laboratoire">Laboratoire</label>
-                    <select name="laboratoire" id="laboratoire" class="form-control">
-                        <?php
-                        $query = $bdd->query("SELECT id_laboratoire, libelle_laboratoire FROM laboratoire WHERE 1");
-                        while ($result = $query->fetch())
-                        {
-                            ?>
-                            <option value="<?= $result['id_laboratoire']?>"> <?= $result['libelle_laboratoire']?> </option>
-                            <?php
-                        }
-                        ?>
+                    <label for="laboratory">Laboratoire</label>
+                    <select name="laboratory" id="laboratory" class="form-control" onchange="showSpeciality(this.value)">
+                        <?php if (isset($editResult) && $editResult["id_laboratoire"] != null): ?>
+                            <option value="<?= $editResult["id_laboratoire"] ?>">
+                                <?php
+                                $query = $bdd->query("SELECT libelle_laboratoire FROM laboratoire WHERE id_laboratoire = " . intval($editResult["id_laboratoire"]));
+                                echo $query->fetchColumn();
+                                ?>
+                            </option>
+                        <?php endif; ?>
                     </select>
                 </div>
 
-
+                <div class="form-group col-md-4">
+                    <label for="speciality">Spécialité laboratoire</label>
+                    <select name="speciality" id="speciality" class="form-control">
+                        <?php if (isset($editResult) && $editResult["id_specialite_labo"] != null): ?>
+                            <option value="<?= $editResult["id_specialite_labo"] ?>">
+                                <?php
+                                $query = $bdd->query("SELECT libelle_specialite_labo FROM specialite_labo WHERE id_specialite_labo = " . intval($editResult["id_specialite_labo"]));
+                                echo $query->fetchColumn();
+                                ?>
+                            </option>
+                        <?php endif; ?>
+                    </select>
+                </div>
 
             </div>
 
             <div class="form-row">
                 <div class="form-group col-md-4">
-                    <label for="specialiteLaboratoire">Spécialité laboratoire</label>
-                    <select name="specialiteLaboratoire" id="specialiteLaboratoire" class="form-control">
+                    <label for="etablissementOrigine">Etablissement d'origine</label>
+                    <select name="etablissementOrigine" id="etablissementOrigine" class="form-control">
                         <?php
-                        $query = $bdd->query("SELECT id_specialite_labo, libelle_specialite_labo FROM specialite_labo WHERE 1");
+                        $query = $bdd->query("SELECT id_departement, nom_departement FROM departement WHERE 1");
                         while ($result = $query->fetch())
                         {
                             ?>
-                            <option value="<?= $result['id_specialite_labo']?>"> <?= $result['libelle_specialite_labo']?> </option>
+                            <option value="<?= $result['id_departement']?>" <?php if (isset($editResult) && $editResult['id_departement'] == $result['id_departement']) echo "selected" ?> > <?= $result['nom_departement']?> </option>
                             <?php
                         }
                         ?>
@@ -275,19 +208,13 @@ if (isset($_POST['supprimer'])){
                 </div>
 
                 <div class="form-group col-md-4">
-                    <label for="pays">Groupe Scolarité</label>
-                    <select name="groupeSco" id="groupeSco" class="form-control">
-                        <?php
-                        $query = $bdd->query("SELECT id_groupe_sco, libelle_groupe_sco FROM groupe_sco WHERE 1");
-                        while ($result = $query->fetch())
-                        {
-                            ?>
-                            <option value="<?= $result['id_groupe_sco']?>"> <?= $result['libelle_groupe_sco']?> </option>
-                            <?php
-                        }
-                        ?>
+                    <label for="permanent">Permanent</label>
+                    <select name="permanent" id="permanent" class="form-control">
+                        <option value="OUI">OUI</option>
+                        <option value="NON">NON</option>
                     </select>
                 </div>
+
             </div>
 
             <div class="form-row">
@@ -299,30 +226,21 @@ if (isset($_POST['supprimer'])){
                         while ($result = $query->fetch())
                         {
                             ?>
-                            <option value="<?= $result['id_pays']?>"> <?= $result['lib_pays']?> </option>
+                            <option value="<?= $result['id_pays']?>" <?php if (isset($editResult) && $editResult["id_pays"] == $result['id_pays'] ) echo "selected"?> > <?= $result['lib_pays']?> </option>
                             <?php
                         }
                         ?>
                     </select>
                 </div>
+
                 <div class="form-group col-md-4">
                     <label for="dateRecrutement">Date de récrutement</label>
-                    <input type="date" class="form-control " id="dateRecrutement"  name="dateRecrutement" required="" autofocus="">
+                    <input type="date" value="<?php if (isset($editResult)) echo $editResult['date_recrutement_enseignant']?>" class="form-control " id="dateRecrutement"  name="dateRecrutement" required="" autofocus="">
                 </div>
             </div>
 
             <hr>
 
-            <div class="form-row">
-                <div class="form-group col-md-4">
-                    <label for="login">Nom d'utilisateur</label>
-                    <input type="text" class="form-control " id="login"  name="login" required="" autofocus="">
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="password">Mot de passe</label>
-                    <input type="text" class="form-control " id="password"  name="password" required="" autofocus="">
-                </div>
-            </div>
             <div class="form-row">
                 <div class="form-group col-md-4">
                     <label for="userGroup">Groupe Utilisateur</label>
@@ -332,12 +250,13 @@ if (isset($_POST['supprimer'])){
                         while ($result = $query->fetch())
                         {
                             ?>
-                            <option value="<?= $result['id_groupe_utilisateur']?>"> <?= $result['libelle_groupe_utilisateur']?> </option>
+                            <option value="<?= $result['id_groupe_utilisateur']?>" <?php if (isset($editResult) && $editResult['id_groupe_utilisateur'] == $result['id_groupe_utilisateur']) echo "selected" ?>> <?= $result['libelle_groupe_utilisateur']?> </option>
                             <?php
                         }
                         ?>
                     </select>
                 </div>
+
                 <div class="form-group col-md-4">
                     <label for="userQuality">Qualité Utilisateur</label>
                     <select id="userQuality"  name="userQuality" required="" class="form-control">
@@ -346,162 +265,59 @@ if (isset($_POST['supprimer'])){
                         while ($result = $query->fetch())
                         {
                             ?>
-                            <option value="<?= $result['id_qualite_utilisateur']?>"> <?= $result['lib_qualite_utilisateur']?> </option>
+                            <option value="<?= $result['id_qualite_utilisateur']?>" <?php if (isset($editResult) && $editResult['id_qualite_utilisateur'] == $result['id_qualite_utilisateur']) echo "selected" ?>> <?= $result['lib_qualite_utilisateur']?> </option>
                             <?php
                         }
                         ?>
                     </select>
                 </div>
             </div>
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="login">Nom d'utilisateur</label>
+                    <input type="text" value="<?php if (isset($editResult)) echo $editResult['login_utilisateur']?>"  class="form-control " id="login"  name="login" required="" autofocus="">
+                </div>
 
-            <div class="modal fade" id="saveClasseModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLabel">Voulez-vous vraiment enregistrer ces informations ?</h5>
-                            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">×</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">Cliquez sur le bouton "Enregistrer" ci-dessous si vous voulez valider ces informations.</div>
-                        <div class="modal-footer">
-                            <button class="btn btn-secondary" type="button" data-dismiss="modal">Annuler</button>
-                            <!--<a class="btn btn-primary" href="index.php?page=aj_etab&amp;act=save">Enregistrer</a>-->
-                            <button type="submit" class="btn btn-primary" name="enregistrer" data-toggle="modal" data-target="#saveClasseModal" ><i class="fas fa-plus-square fa-sm fa-fw mr-2 text-gray-400"></i> Enregister </button>
-                        </div>
-                    </div>
+                <div class="form-group col-md-4">
+                    <label for="password">Mot de passe</label>
+                    <input type="text" value="<?php if (isset($editResult)) echo $editResult['mot_passe_utilisateur']?>" class="form-control " id="password"  name="password" required="" autofocus="">
                 </div>
             </div>
 
-            <div class="modal fade" id="updateClasseModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLabel">Voulez-vous vraiment modifier ces informations ?</h5>
-                            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">×</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">Cliquez sur le bouton "Modifier" ci-dessous si vous voulez valider ces informations.</div>
-                        <div class="modal-footer">
-                            <button class="btn btn-secondary" type="button" data-dismiss="modal">Annuler</button>
-                            <!--<a class="btn btn-primary" href="index.php?page=aj_etab&amp;act=save">Enregistrer</a>-->
-                            <button type="submit" class="btn btn-primary" name="modifier" data-toggle="modal" data-target="#saveClasseModal" ><i class="fas fa-edit fa-sm fa-fw mr-2 text-gray-400"></i> Modifier </button>
-                        </div>
-                    </div>
-                </div>
+            <div class="row form-group" hidden>
+                <label for="">Identifiant utilisateur</label>
+                <input type="text" name="id_utilisateur" value="<?php if (isset($editResult)) echo $editResult["id_utilisateur"] ?>">
             </div>
+
+
+            <!-- Save -->
+            <?php include "teacher/modals/saveModal.php"?>
+            <!-- Update -->
+            <?php include "teacher/modals/updateModal.php"?>
+            <!-- Undo -->
+            <?php include "teacher/modals/undoModal.php"?>
 
         </form>
 
-        <div align="right">
+        <div align="left">
 
-            <?php
-            if (!isset($_GET['id']))
-            {
-                ?>
-                <button  class="btn btn-primary" data-toggle="modal" data-target="#saveClasseModal">Valider</button>
-                <button  class="btn btn-danger" type="reset">Annuler</button>
-                <?php
-            }
-            else if(isset($_GET['id']))
-            {?>
-                <button  class="btn btn-primary" data-toggle="modal" data-target="#updateClasseModal">Editer</button>
-                <a  class="btn btn-danger"  href="index.php?page=group_util">Annuler</a>
+            <?php if (!isset($editResult)) : ?>
+                <button  class="btn btn-primary" data-toggle="modal" data-target="#saveClasseModal"><i class="fas fa-plus-square fa-sm fa-fw mr-2 text-gray-400"></i>Enregistrer</button>
+            <?php else : ?>
+                <div class="d-flex justify-content-between">
+                    <button  class="btn btn-primary" data-toggle="modal" data-target="#updateClasseModal"><i class="fas fa-edit fa-sm fa-fw mr-2 text-gray-400"></i>Enregistrer</button>
+                    <button  class="btn btn-danger" data-toggle="modal" data-target="#undoClassModal"><i class="fas fa-undo fa-sm fa-fw mr-2 text-gray-400"></i>Annuler</button>
+                </div>
+            <?php endif; ?>
 
-                <?php
-
-            } ?>
         </div>
 
     </div>
 
 </div>
 
-<?php
+<?php $list = $teacherManager->getList(2); ?>
 
-// List de tous les enseignants
-$list = $teacherManager->getList();
+<?php $label = "Liste du personnel"; include "teacher/include/formListTeacher-block.php"?>
 
-?>
-<form action="" method="POST">
-
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Liste des enseignants</h6>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-
-                    <!-- Head -->
-                    <thead>
-                    <tr>
-                        <th></th>
-                        <th>Identifiant</th>
-                        <th>Nom</th>
-                        <th>Prénoms</th>
-                    </tr>
-                    </thead>
-
-                    <!-- Footer -->
-                    <tfoot>
-                    <tr>
-                        <th></th>
-                        <th>Identifiant</th>
-                        <th>Nom</th>
-                        <th>Prénoms</th>
-                    </tr>
-                    </tfoot>
-
-                    <!-- Body -->
-                    <tbody>
-                    <?php
-                    foreach ($list as $enseignant)
-                    {
-                        ?>
-                        <tr>
-                            <td align="center"><input type="checkbox"  id="cocher[]" name="cocher[]" value="<?php echo $enseignant->id_enseignant(); ?>"></td>
-                            <td><?php echo $enseignant->id_enseignant(); ?></td>
-                            <td><?php echo $enseignant->nom_enseignant();?></td>
-                            <td><?php echo $enseignant->prenom_enseignant();?></td>
-                        </tr>
-                        <?php
-                    }
-                    ?>
-
-                    </tbody>
-
-                </table>
-            </div>
-        </div>
-
-        <div><a class="btn btn-danger" href="#" data-toggle="modal" data-target="#DeleteEvaluationModal" style="margin: 20px;"><i class="fas fa-trash fa-sm fa-fw mr-2 text-gray-400"></i> Supprimer la sélection</a></div>
-
-        <div class="modal fade" id="DeleteEvaluationModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Voulez-vous vraiment supprimer la sélection ?</h5>
-                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">×</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">Cliquez sur le bouton "Supprimer" ci-dessous si vous voulez supprimer les éléments sélectionnés.</div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Annuler</button>
-                        <!--<a class="btn btn-primary" href="index.php?page=aj_etab&amp;act=save">Enregistrer</a>-->
-                        <button type="submit" class="btn btn-danger" name="supprimer"><i class="fas fa-trash fa-sm fa-fw mr-2 text-gray-400"></i> Supprimer </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    </div>
-    <!-- /.container-fluid -->
-
-    </div>
-
-
-</form>
+<script src="teacher/script/tscript.js"></script>

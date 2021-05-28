@@ -16,17 +16,23 @@ date_default_timezone_set('UTC');
 // Identifiant de la nouvelle entrée
 $identifiant = $teacherManager->getLastInsertedOne() + 1;
 
+$idUserType = 4;
+$idStaffType= 1;
+
 // Enregistrement
-include "teacher/process/saveCode.php";
+if (isset($_POST['enregistrer'])) include "teacher/process/saveCode.php";
 
 // Suppression
-include "teacher/process/deleteCode.php";
+if (isset($_POST['supprimer']))   include "teacher/process/deleteCode.php";
 
 // Edit
-include "teacher/process/editCode.php";
+if (isset($_POST['edit'])) include "teacher/process/editCode.php";
 
 // Update
-include "teacher/process/updateCode.php";
+if (isset($_POST['update'])) include "teacher/process/updateCode.php";
+
+// Undo
+if (isset($_POST['undo'])) include "teacher/process/undoCode.php";
 
 ?>
 <div class="card shadow mb-4">
@@ -288,15 +294,20 @@ include "teacher/process/updateCode.php";
             <?php include "teacher/modals/saveModal.php"?>
             <!-- Update -->
             <?php include "teacher/modals/updateModal.php"?>
+            <!-- Undo -->
+            <?php include "teacher/modals/undoModal.php"?>
 
         </form>
 
         <div align="left">
 
             <?php if (!isset($editResult)) : ?>
-                <button  class="btn btn-primary" data-toggle="modal" data-target="#saveClasseModal">Valider</button>
+                <button  class="btn btn-primary" data-toggle="modal" data-target="#saveClasseModal"><i class="fas fa-plus-square fa-sm fa-fw mr-2 text-gray-400"></i>Enregistrer</button>
             <?php else : ?>
-                <button  class="btn btn-primary" data-toggle="modal" data-target="#updateClasseModal"><i class="fas fa-edit fa-sm fa-fw mr-2 text-gray-400"></i>Enregistrer</button>
+                <div class="d-flex justify-content-between">
+                    <button  class="btn btn-primary" data-toggle="modal" data-target="#updateClasseModal"><i class="fas fa-edit fa-sm fa-fw mr-2 text-gray-400"></i>Enregistrer</button>
+                    <button  class="btn btn-danger" data-toggle="modal" data-target="#undoClassModal"><i class="fas fa-undo fa-sm fa-fw mr-2 text-gray-400"></i>Annuler</button>
+                </div>
             <?php endif; ?>
 
         </div>
@@ -305,8 +316,8 @@ include "teacher/process/updateCode.php";
 
 </div>
 
-<?php $list = $teacherManager->getList(); ?>
+<?php $list = $teacherManager->getList(1); ?>
 
-<?php include "teacher/include/formListTeacher-block.php"?>
+<?php $label = "Liste des enseignants"; include "teacher/include/formListTeacher-block.php"?>
 
 <script src="teacher/script/tscript.js"></script>
